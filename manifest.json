@@ -1,0 +1,24 @@
+{
+  "name": "📚 كشف المتابعة",
+  "short_name": "📚 كشف المتابعة",
+  "description": "نظام متابعة الغياب والمخالفات والدرجات",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F2F2F7",
+  "theme_color": "#007AFF",
+  "orientation": "natural",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
