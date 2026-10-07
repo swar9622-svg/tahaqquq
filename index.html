@@ -20,7 +20,7 @@
 </head>
 <body>
 <div class="app">
-<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">35</span></small></h1></header>
+<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">36</span></small></h1></header>
 <section class="toolbar">
  <div class="actions"><input class="file" id="fileInput" type="file" accept=".json,application/json"></div>
  <div class="filters"><label>الصف<select id="classSel"></select></label><label>الفصل<select id="sectionSel"></select></label><label>الوحدة<select id="unitSel"></select></label><label>الدرس<select id="lessonSel"></select></label></div>
@@ -32,7 +32,7 @@
 <script>
 (function(){
 'use strict';
-var APP_VERSION='35';
+var APP_VERSION='36';
 var KEY='tahaqquq_standalone_checks_v1', DB_NAME='tahaqquq_checks_db_v1', DB_STORE='app', DB_KEY='snapshot', SCORES=[['متقن',10,'good'],['فهم جزئي',7,'partial'],['يحتاج لدعم',4,'support'],['لم ينفذ',0,'none']];
 var state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};
 var queue={checks:[],violations:[],violationDeletes:[]};
