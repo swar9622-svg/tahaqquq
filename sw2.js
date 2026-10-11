@@ -1,7 +1,7 @@
 /* تطبيق تحقق ومخالفات — غيّر APP_VERSION فقط عند إصدار نسخة جديدة */
-const APP_VERSION = '40';
+const APP_VERSION = '39';
 const CACHE_NAME = `tahaqquq-checks-v${APP_VERSION}`;
-const APP_SHELL = ['./','./index.html','./manifest.json','./icon.png','./icon-192.png','./sw2.js','./fonts/IBMPlexSansArabic-400.woff2','./fonts/IBMPlexSansArabic-600.woff2','./fonts/IBMPlexSansArabic-700.woff2'];
+const APP_SHELL = ['./','./index.html','./manifest.json','./icon.png','./icon-192.png','./sw2.js'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', event => {
