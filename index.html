@@ -57,7 +57,7 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 </head>
 <body>
 <div class="app">
-<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">45</span></small></h1></header>
+<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">46</span></small></h1></header>
 <section class="toolbar">
  <div class="actions"><input class="file" id="fileInput" type="file" accept=".json,application/json"><input class="file" id="portalExcelInput" type="file" accept=".xlsx,.xls"></div>
  <div class="filters"><label class="fl fl-combo">الصف / الفصل<select id="comboSel"></select></label><label class="fl fl-unit">الوحدة<select id="unitSel"></select></label><label class="fl fl-lesson">الدرس<select id="lessonSel"></select></label></div><div style="display:none"><select id="classSel"></select><select id="sectionSel"></select></div>
@@ -70,7 +70,7 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 <script>
 (function(){
 'use strict';
-var APP_VERSION='45';
+var APP_VERSION='46';
 var KEY='tahaqquq_standalone_checks_v1', DB_NAME='tahaqquq_checks_db_v1', DB_STORE='app', DB_KEY='snapshot', SCORES=[['متقن',10,'good'],['فهم جزئي',7,'partial'],['يحتاج لدعم',4,'support'],['لم ينفذ',0,'none']];
 var state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};
 var queue={checks:[],violations:[],violationDeletes:[]};
@@ -135,7 +135,7 @@ function portalScoreFor(cls,p){var d=state.classes[cls]||{},m=d.portalScores||{}
     var settings=rows('إعدادات_الواجبات'),assign={};settings.slice(1).forEach(function(r){var cls=txt(r[0]),id=txt(r[1]).replace(/\s/g,'');if(cls&&/^\d+-\d+$/.test(id)&&txt(r[3])==='منشور'){var u=String(Number(id.split('-')[0]));(assign[cls]||(assign[cls]={}))[u]=(assign[cls][u]||[]).concat(id);}});
     var activityBy={},achBy={},testBy={},checkBy={},gradeBy={};
     names.forEach(function(n){var a=rows(n);if(a.length<2)return;var h=a[0].map(txt);
-      if(/^تسليم أنشطة /.test(n)){a.slice(1).forEach(function(r){var id=txt(r[2])+'-'+txt(r[3]),sc=num(r[5]);if(txt(r[0])&&/^\d+-\d+$/.test(id)){var k=key(r[0],r[1])+'|'+id;activityBy[k]=sc;}});}
+      if(/^تسليم أنشطة /.test(n)){a.slice(1).forEach(function(r){var nm=txt(r[0]),sec=txt(r[2]);if(!nm)return;h.forEach(function(x,j){var m=x.match(/(\d+-\d+)\s*درجة/);if(m)activityBy[key(nm,sec)+'|'+m[1]]=num(r[j]);});});}
       else if(/^تحقق /.test(n)){var map={};a.slice(1).forEach(function(r){var k=key(r[1],r[0]);map[k]=map[k]||{};h.slice(2).forEach(function(x,j){var id=txt(x).replace(/\s/g,'');if(/^\d+-\d+$/.test(id))map[k][id]=num(r[j+2]);});});checkBy[n]=map;}
       else if(/^اختبارات /.test(n)){var map={};a.slice(1).forEach(function(r){var k=key(r[0],r[1]);map[k]=map[k]||{};h.slice(2).forEach(function(x,j){var m=txt(x).match(/(\d+)/);if(m)map[k][String(Number(m[1]))]=num(r[j+2]);});});testBy[n]=map;}
       else if(n==='درجات إنجازات الوحدات'){a.slice(1).forEach(function(r){var k=key(r[1],r[2])+'|'+txt(r[3]);achBy[k]=Math.min(10,num(r[4]));});}
@@ -153,7 +153,7 @@ function mergePayload(payload){var inc=payload&&payload.snapshot?payload.snapsho
 function exportJson(){var payload={format:'tahaqquq-checks-backup',version:1,source:'tahaqquq-app',exportedAt:new Date().toISOString(),snapshot:state,queue:queue};var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='تحقق-ومخالفات-'+today()+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);setState('تم تصدير نسخة JSON');}
 function clearData(){if(confirm('سيتم حذف البيانات المحلية من هذا الجهاز فقط. هل تريد المتابعة؟')){try{indexedDB.deleteDatabase(DB_NAME)}catch(e){};localStorage.removeItem(KEY);state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};queue={checks:[],violations:[],violationDeletes:[]};$('settingsOverlay').classList.remove('open');render();setState('تم مسح بيانات الجهاز');}}
 $('classSel').onchange=renderSections;$('sectionSel').onchange=renderCards;$('unitSel').onchange=renderLessons;$('lessonSel').onchange=renderCards;$('settingsBtn').onclick=openSettings;$('comboSel').addEventListener('change',onComboChange);$('cards').addEventListener('contextmenu',function(e){e.preventDefault();});document.querySelector('.filters').addEventListener('change',saveSel);$('nameSearch').addEventListener('input',renderCards);
-$('fileInput').onchange=function(){var f=$('fileInput').files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{mergePayload(JSON.parse(r.result))}catch(e){setState('تعذر استيراد الملف: '+e.message)}};r.readAsText(f,'utf-8');$('fileInput').value=''};$('portalExcelInput').onchange=function(){var f=$('portalExcelInput').files[0];if(!f)return;mergePortalExcel(f).catch(function(e){setState('تعذر استيراد درجات البوابة: '+e.message)});$('portalExcelInput').value=''};
+$('fileInput').onchange=function(){var f=$('fileInput').files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{mergePayload(JSON.parse(r.result))}catch(e){setState('تعذر استيراد الملف: '+e.message)}};r.readAsText(f,'utf-8');$('fileInput').value=''};$('portalExcelInput').onchange=function(){var f=$('portalExcelInput').files[0];if(!f)return;setState('جاري قراءة Excel وحساب الدرجات من 60...');mergePortalExcel(f).catch(function(e){setState('فشل استيراد Excel: '+e.message)});$('portalExcelInput').value=''};
 var singleClickTimer=null;
 $('cards').addEventListener('click',function(e){var b=e.target.closest('[data-score]');if(b){var f=currentFilters(),p={name:b.getAttribute('data-name'),section:b.getAttribute('data-sec')};setScore(f,p,b.getAttribute('data-lesson'),Number(b.getAttribute('data-score')));return;}var vc=e.target.closest('.vcount'),card=e.target.closest('.student');if(vc&&card){openViolationHistoryOnly({name:card.getAttribute('data-name'),section:card.getAttribute('data-sec')},currentFilters());return;}var name=e.target.closest('.student-name');if(name&&!currentFilters().lesson){var c=name.closest('.student'),p={name:c.getAttribute('data-name'),section:c.getAttribute('data-sec')};clearTimeout(singleClickTimer);singleClickTimer=setTimeout(function(){if(!currentFilters().unit)openStudentUnitPicker(p);else openStudentLessons(p,currentFilters());},280);}});
 $('cards').addEventListener('dblclick',function(e){var card=e.target.closest('.student');if(!card)return;clearTimeout(singleClickTimer);openViolations({name:card.getAttribute('data-name'),section:card.getAttribute('data-sec')},currentFilters());});
