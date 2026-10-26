@@ -57,7 +57,7 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 </head>
 <body>
 <div class="app">
-<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">51</span></small></h1></header>
+<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">52</span></small></h1></header>
 <section class="toolbar">
  <div class="actions"><input class="file" id="fileInput" type="file" accept=".json,application/json"><input class="portal-file" id="portalExcelInput" type="file" accept=".xlsx,.xls"></div>
  <div class="filters"><label class="fl fl-combo">الصف / الفصل<select id="comboSel"></select></label><label class="fl fl-unit">الوحدة<select id="unitSel"></select></label><label class="fl fl-lesson">الدرس<select id="lessonSel"></select></label></div><div style="display:none"><select id="classSel"></select><select id="sectionSel"></select></div>
@@ -70,7 +70,7 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 <script>
 (function(){
 'use strict';
-var APP_VERSION='51';
+var APP_VERSION='52';
 var KEY='tahaqquq_standalone_checks_v1', DB_NAME='tahaqquq_checks_db_v1', DB_STORE='app', DB_KEY='snapshot', SCORES=[['متقن',10,'good'],['فهم جزئي',7,'partial'],['يحتاج لدعم',4,'support'],['لم ينفذ',0,'none']];
 var state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};
 var queue={checks:[],violations:[],violationDeletes:[]};
@@ -135,7 +135,7 @@ function portalScoreFor(cls,p){var d=state.classes[cls]||{},m=d.portalScores||{}
     var settings=rows('إعدادات_الواجبات'),assign={};settings.slice(1).forEach(function(r){var cls=txt(r[0]),id=txt(r[1]).replace(/\s/g,'');if(cls&&/^\d+-\d+$/.test(id)&&txt(r[3])==='منشور'){var u=String(Number(id.split('-')[0]));(assign[cls]||(assign[cls]={}))[u]=(assign[cls][u]||[]).concat(id);}});
     var activityBy={},achBy={},testBy={},checkBy={},gradeBy={};
     names.forEach(function(n){var a=rows(n);if(a.length<2)return;var h=a[0].map(txt);
-      if(/^تسليم أنشطة /.test(n)){a.slice(1).forEach(function(r){var nm=txt(r[0]),sec=txt(r[2]);if(!nm)return;h.forEach(function(x,j){var m=x.match(/(\d+-\d+)\s*درجة/);if(m){var av=(j+1<r.length&&txt(r[j+1])!=='')?r[j+1]:r[j];activityBy[key(nm,sec)+'|'+m[1]]=num(av);}});});}
+      if(/^تسليم أنشطة /.test(n)){a.slice(1).forEach(function(r){var nm=txt(r[0]),sec=txt(r[2]);if(!nm)return;h.forEach(function(x,j){var m=x.match(/(\d+-\d+)\s*درجة/);if(m){var av=(j+1<r.length&&txt(r[j+1])!=='')?r[j+1]:r[j],ak=key(nm,sec)+'|'+m[1],as=num(av);activityBy[ak]=Math.max(Number(activityBy[ak]||0),as);}});});}
       else if(/^تحقق /.test(n)){var map={};a.slice(1).forEach(function(r){var k=key(r[1],r[0]);map[k]=map[k]||{};h.slice(2).forEach(function(x,j){var id=txt(x).replace(/\s/g,'');if(/^\d+-\d+$/.test(id))map[k][id]=num(r[j+2]);});});checkBy[n]=map;}
       else if(/^اختبارات /.test(n)){var map={};a.slice(1).forEach(function(r){var k=key(r[0],r[1]);map[k]=map[k]||{};h.slice(2).forEach(function(x,j){var m=txt(x).match(/(\d+)/);if(m&&txt(r[j+2])!=='')map[k][String(Number(m[1]))]=num(r[j+2]);});});testBy[n]=map;}
       else if(n==='درجات إنجازات الوحدات'){a.slice(1).forEach(function(r){var k=key(r[1],r[2])+'|'+txt(r[3]);achBy[k]=Math.min(10,num(r[4]));});}
