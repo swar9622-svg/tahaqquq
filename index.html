@@ -57,7 +57,7 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 </head>
 <body>
 <div class="app">
-<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">52</span></small></h1></header>
+<header class="top"><button class="gear" id="settingsBtn" aria-label="الإعدادات">⚙️</button><h1>تحقق ومخالفات <small class="version">v.<span id="appVersion">53</span></small></h1></header>
 <section class="toolbar">
  <div class="actions"><input class="file" id="fileInput" type="file" accept=".json,application/json"><input class="portal-file" id="portalExcelInput" type="file" accept=".xlsx,.xls"></div>
  <div class="filters"><label class="fl fl-combo">الصف / الفصل<select id="comboSel"></select></label><label class="fl fl-unit">الوحدة<select id="unitSel"></select></label><label class="fl fl-lesson">الدرس<select id="lessonSel"></select></label></div><div style="display:none"><select id="classSel"></select><select id="sectionSel"></select></div>
@@ -70,7 +70,7 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 <script>
 (function(){
 'use strict';
-var APP_VERSION='52';
+var APP_VERSION='53';
 var KEY='tahaqquq_standalone_checks_v1', DB_NAME='tahaqquq_checks_db_v1', DB_STORE='app', DB_KEY='snapshot', SCORES=[['متقن',10,'good'],['فهم جزئي',7,'partial'],['يحتاج لدعم',4,'support'],['لم ينفذ',0,'none']];
 var state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};
 var queue={checks:[],violations:[],violationDeletes:[]};
@@ -142,7 +142,7 @@ function portalScoreFor(cls,p){var d=state.classes[cls]||{},m=d.portalScores||{}
       else if(!/^(الطلاب|الدروس|إعدادات|عبارات|الهيكل|أرشيف|ملاحظات|سلة|سجل|المخالفات|إعلانات|بنك)/.test(n)&&h.some(function(x){return /اسم الطالب/.test(x)})&&h.indexOf('الفصل')>=0){gradeBy[n]={h:h,rows:a.slice(1)};}
     });
     var count=0;
-    Object.keys(gradeBy).forEach(function(cls){var g=gradeBy[cls],nameI=g.h.indexOf('اسم الطالب'),secI=g.h.indexOf('الفصل'),units=assign[cls]||{},allIds=[];Object.keys(units).forEach(function(u){units[u].forEach(function(id){if(allIds.indexOf(id)<0)allIds.push(id);});});var check=checkBy['تحقق '+cls]||{},tests=testBy['اختبارات '+cls]||{};g.rows.forEach(function(r){var nm=txt(r[nameI]),sec=txt(r[secI]);if(!nm||!allIds.length)return;var hs=0,as=0,cs=0;allIds.forEach(function(id){var ix=g.h.indexOf(id);if(ix>=0)hs+=num(r[ix]);as+=activityBy[key(nm,sec)+'|'+id]||0;cs+=(check[key(nm,sec)]||{})[id]||0;});var lessonCount=allIds.length,homework=Math.ceil(Math.min(10,hs/lessonCount)),activity=Math.min(10,as/lessonCount),checkScore=Math.min(10,cs/lessonCount),achSum=0,achCount=0;Object.keys(units).forEach(function(u){var ak=key(nm,sec)+'|'+u;if(Object.prototype.hasOwnProperty.call(achBy,ak)){achSum+=Number(achBy[ak])||0;achCount++;}});var achievement=achCount?Math.min(10,achSum/achCount):0,testSum=0,testCount=0,tm=tests[key(nm,sec)]||{};Object.keys(tm).forEach(function(u){testSum+=Math.min(20,Math.max(0,Number(tm[u])||0));testCount++;});var test=testCount?Math.min(20,testSum/testCount):0,total=Math.ceil((homework+activity+checkScore+achievement+test)*10-1e-9)/10,d=ensureClass(cls);d.portalScores[normName(nm)]=total;count++;});});
+    Object.keys(gradeBy).forEach(function(cls){var g=gradeBy[cls],nameI=g.h.indexOf('اسم الطالب'),secI=g.h.indexOf('الفصل'),units=assign[cls]||{},allIds=[];Object.keys(units).forEach(function(u){units[u].forEach(function(id){if(allIds.indexOf(id)<0)allIds.push(id);});});var check=checkBy['تحقق '+cls]||{},tests=testBy['اختبارات '+cls]||{};g.rows.forEach(function(r){var nm=txt(r[nameI]),sec=txt(r[secI]);if(!nm||!allIds.length)return;var hs=0,as=0,cs=0;allIds.forEach(function(id){var ix=g.h.indexOf(id);if(ix>=0)hs+=num(r[ix]);as+=activityBy[key(nm,sec)+'|'+id]||0;cs+=(check[key(nm,sec)]||{})[id]||0;});var lessonCount=allIds.length,homework=Math.min(10,hs/lessonCount),activity=Math.min(10,as/lessonCount),checkScore=Math.min(10,cs/lessonCount),achSum=0,achCount=0;Object.keys(units).forEach(function(u){var ak=key(nm,sec)+'|'+u;if(Object.prototype.hasOwnProperty.call(achBy,ak)){achSum+=Number(achBy[ak])||0;achCount++;}});var achievement=Math.min(10,achSum),testSum=0,testCount=0,tm=tests[key(nm,sec)]||{};Object.keys(tm).forEach(function(u){testSum+=Math.min(20,Math.max(0,Number(tm[u])||0));testCount++;});var test=Math.min(20,testSum),total=Math.min(60,Math.ceil(homework+activity+checkScore+achievement+test)),d=ensureClass(cls);d.portalScores[normName(nm)]=total;count++;});});
     if(!count)throw Error('لم أجد درجات قابلة للحساب. تأكد من تصدير Excel من البوابة واختيار الواجبات المنشورة.');
     return save({silent:true}).then(function(){render();setState('تم حساب واستيراد '+count+' درجة من 60 فقط.');alert('تم الاستيراد بنجاح\nتم حساب '+count+' درجة من 60.');});
   });
