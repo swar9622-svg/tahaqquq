@@ -65,7 +65,7 @@
 .fs-range{width:100%;accent-color:#8e3dbd;height:30px}
 .fs-seg{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}.fs-seg button{height:42px;border-radius:12px;background:#f3f4f8;border:1.5px solid #e2e5ee;font-size:15px;color:#444}.fs-seg button.on{background:#8e3dbd;border-color:#8e3dbd;color:#fff}
 .fs-preview{margin-top:16px;padding:12px;border:1.5px dashed #d6c3e8;border-radius:16px;background:#fbf8fe}.fs-prev-btns{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:9px}.fs-prev-btns .score{text-align:center}
-body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal-open .modal-overlay.open{touch-action:none!important}body.modal-open .modal-overlay.open .modal{touch-action:pan-y!important;overscroll-behavior:contain!important}
+body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal-open .modal-overlay.open{touch-action:manipulation!important}body.modal-open .modal-overlay.open .modal{touch-action:pan-y!important;overscroll-behavior:contain!important}
 .portal-total{margin-bottom:4px}.portal-chip{display:inline-block;unicode-bidi:isolate;cursor:pointer;font-size:12px;font-weight:700;border-radius:8px;padding:3px 9px;white-space:nowrap;border:1px solid}.portal-chip.pc-g{color:#166534;background:#dcfce7;border-color:#86efac}.portal-chip.pc-b{color:#1e40af;background:#dbeafe;border-color:#93c5fd}.portal-chip.pc-vg{color:#6b21a8;background:#f3e8ff;border-color:#d8b4fe}.portal-chip.pc-o{color:#9a3412;background:#ffedd5;border-color:#fdba74}.portal-chip.pc-r{color:#b91c1c;background:#fee2e2;border-color:#fca5a5}.portal-grade-label{display:inline-block;font-size:12.5px;font-weight:700;margin-right:5px;vertical-align:middle}.portal-grade-label.pl-g{color:#166534}.portal-grade-label.pl-b{color:#1e40af}.portal-grade-label.pl-vg{color:#6b21a8}.portal-grade-label.pl-o{color:#9a3412}.portal-grade-label.pl-r{color:#b91c1c}.weighted-score-card{margin:11px 0;border-radius:18px;overflow:hidden;border:2px solid #c4b5fd;box-shadow:0 9px 25px rgba(79,70,229,.16);background:#fff}.weighted-score-table{width:100%;border-collapse:collapse;text-align:center;font-size:14.5px;table-layout:fixed}.weighted-score-table thead tr:first-child th{background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;font-size:20px;padding:12px}.weighted-score-table thead tr:nth-child(2) th{background:#ede9fe;color:#312e81;padding:9px}.weighted-score-table td{padding:11px 7px;border-bottom:1px solid #e2e8f0;white-space:normal;line-height:1.45}.weighted-score-table tbody tr:nth-child(odd){background:#fafaff}.weighted-score-table tbody tr:last-child{background:#dcfce7;font-size:16.8px;border-top:3px solid #059669}.weighted-score-table tbody tr.weighted-total-zero{background:#fee2e2!important;color:#991b1b}.weighted-score-table tbody tr.weighted-total-weak{background:#fee2e2!important;color:#991b1b}.weighted-score-table tbody tr.weighted-total-good{background:#dbeafe!important;color:#1e40af}.weighted-score-table tbody tr.weighted-total-excellent{background:#dcfce7!important;color:#166534}.weighted-score-table tbody tr.weighted-total-outstanding{background:linear-gradient(135deg,#fef08a,#facc15,#fde68a)!important;color:#713f12}.full-score-card{border-color:#2563eb!important;box-shadow:0 0 0 2px rgba(37,99,235,.18),0 8px 22px rgba(37,99,235,.2)!important}.full-score-card .weighted-total-outstanding{font-size:1.08em}
 
 /* قفل طويل الضغط لقوائم الصف والوحدة والدرس */
@@ -76,26 +76,25 @@ body.modal-open{overflow:hidden!important;touch-action:none!important}body.modal
 .lock-wrap.is-locked .lock-badge{display:block}
 .lock-wrap,.lock-wrap *{-webkit-touch-callout:none}
 
-/* واجهة لمس ثابتة: لا تظهر قوائم select الأصلية ولا إطار التركيز */
-.filters label.fl .lock-wrap{display:block;width:100%;margin-top:4px;position:relative}
-.filters label.fl .lock-wrap select{display:none!important}
-.touch-filter-trigger{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;width:100%;height:38px;margin:0;padding:0 25px 0 24px;border:1.5px solid;border-radius:13px;font-size:calc(15px*var(--fs));font-weight:var(--fw);line-height:1.2;direction:rtl;text-align:center;white-space:nowrap;overflow:hidden;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation;outline:none!important;box-shadow:none!important;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+/* واجهة لمس مخصصة للقوائم */
+.filters label.fl select{display:none!important}
+.filters label.fl{display:block;min-width:0;font-size:13px!important}
+.touch-filter{position:relative;margin-top:5px}
+.touch-filter-trigger{width:100%;min-height:48px;border:2px solid;border-radius:14px;padding:7px 10px;background:#fff;display:flex;align-items:center;justify-content:center;gap:5px;font-size:17px!important;font-weight:700;line-height:1.25;touch-action:manipulation;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;outline:none;box-shadow:none}
 .fl-combo .touch-filter-trigger{background:#eaf6ee;border-color:#b5dcc0;color:#2e6b3f}
 .fl-unit .touch-filter-trigger{background:#eaf1fd;border-color:#b9d3ee;color:#2a4fd0}
 .fl-lesson .touch-filter-trigger{background:#fcf1e0;border-color:#efcfae;color:#a8571d}
-.touch-filter-trigger:focus,.touch-filter-trigger:focus-visible,.touch-filter-trigger:active{outline:none!important;box-shadow:none!important;filter:none;transform:none}
-.touch-filter-value{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;pointer-events:none}
-.touch-filter-arrow{position:absolute;left:8px;top:50%;transform:translateY(-55%);font-size:17px;line-height:1;pointer-events:none}
-.lock-badge{display:none;position:absolute;right:6px;top:50%;transform:translateY(-50%);font-size:10px;line-height:1;pointer-events:none;z-index:2}
-.touch-filter .lock-badge{left:auto!important;right:6px!important;max-width:14px;white-space:nowrap}.touch-filter.is-locked .lock-badge{display:block}
-.touch-filter.is-locked .touch-filter-trigger{padding-right:23px;opacity:.92}
-.touch-filter-menu{display:none;position:absolute;top:calc(100% + 5px);right:0;left:0;z-index:100;max-height:min(45vh,320px);overflow-y:auto;overscroll-behavior:contain;background:#fff;border:1px solid #d9dee7;border-radius:12px;padding:4px;box-shadow:0 5px 14px #0f172a1a;-webkit-overflow-scrolling:touch}
+.touch-filter-trigger:active{filter:brightness(.96)}
+.touch-filter-trigger .lock-mark{font-size:14px;line-height:1;flex:none}
+.touch-filter.is-locked .touch-filter-trigger{opacity:.85}
+.touch-filter-menu{display:none;position:absolute;top:calc(100% + 5px);right:0;left:0;max-height:48vh;overflow-y:auto;overscroll-behavior:contain;z-index:50;background:#fff;border:1px solid #d7dce5;border-radius:13px;box-shadow:0 8px 24px #0f172a24;padding:5px;touch-action:pan-y}
 .touch-filter-menu.open{display:block}
-.touch-filter-option{display:block;width:100%;min-height:38px;padding:8px 10px;margin:0;border:0;border-radius:8px;background:#fff;color:#202124;text-align:right;font-size:14px;font-weight:600;line-height:1.35;outline:none!important;box-shadow:none!important;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.touch-filter-option+.touch-filter-option{margin-top:2px}
-.touch-filter-option.selected{background:#f1f5f9;font-weight:700}
-.touch-filter-option:focus,.touch-filter-option:focus-visible,.touch-filter-option:active{outline:none!important;box-shadow:none!important}
-@media(max-width:560px){.touch-filter-trigger{font-size:calc(13px*var(--fs));padding-right:19px;padding-left:19px}.touch-filter-arrow{left:5px;font-size:15px}.touch-filter .lock-badge{right:4px!important;font-size:9px}.touch-filter-option{font-size:13px;min-height:36px}}
+.touch-filter-option{display:block;width:100%;min-height:44px;padding:9px 10px;text-align:center;border:0;border-radius:9px;background:#fff;color:#1f2937;font-size:17px!important;font-weight:600;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.touch-filter-option+ .touch-filter-option{margin-top:2px}
+.touch-filter-option:active,.touch-filter-option.selected{background:#f0e8fb;color:#6b21a8}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:focus,button:focus-visible{outline:none!important;box-shadow:none!important}
+@media(max-width:560px){.touch-filter-trigger{min-height:50px;font-size:17px!important}.touch-filter-option{font-size:17px!important;min-height:46px}.filters{gap:7px}}
 
 </style>
 </head>
@@ -314,72 +313,36 @@ function mergePayload(payload){var inc=payload&&payload.snapshot?payload.snapsho
 function exportJson(){var payload={format:'tahaqquq-checks-backup',version:1,source:'tahaqquq-app',exportedAt:new Date().toISOString(),snapshot:state,queue:queue};var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='تحقق-ومخالفات-'+today()+'.json';a.click();setTimeout(function(){URL.revokeObjectURL(url)},1000);setState('تم تصدير نسخة JSON');}
 function clearData(){if(confirm('سيتم حذف البيانات المحلية من هذا الجهاز فقط. هل تريد المتابعة؟')){try{indexedDB.deleteDatabase(DB_NAME)}catch(e){};localStorage.removeItem(KEY);state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};queue={checks:[],violations:[],violationDeletes:[]};$('settingsOverlay').classList.remove('open');render();setState('تم مسح بيانات الجهاز');}}
 
-/* قوائم لمس مخصصة بدل منتقي النظام: استجابة فورية بلا إطار تركيز أو قائمة أصلية */
+/* قوائم لمس مخصصة: نقرة للفتح وضغط مطوّل للقفل/فك القفل */
 var FILTER_LOCK_KEY='tahaqquq-filter-locks-v2';
 var filterLocks={comboSel:false,unitSel:false,lessonSel:false};
 try{var savedFilterLocks=JSON.parse(localStorage.getItem(FILTER_LOCK_KEY)||'null');if(savedFilterLocks)Object.keys(filterLocks).forEach(function(k){filterLocks[k]=!!savedFilterLocks[k];});}catch(e){}
 function setupFilterLocks(){
-  ['comboSel','unitSel','lessonSel'].forEach(function(id){
-    var sel=$(id);if(!sel||sel.dataset.customTouchReady)return;sel.dataset.customTouchReady='1';
-    var wrap=document.createElement('div');wrap.className='lock-wrap touch-filter '+id+'-touch';
-    sel.parentNode.insertBefore(wrap,sel);wrap.appendChild(sel);
-    var trigger=document.createElement('button');trigger.type='button';trigger.className='touch-filter-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
-    var label=document.createElement('span');label.className='touch-filter-value';
-    var arrow=document.createElement('span');arrow.className='touch-filter-arrow';arrow.textContent='⌄';
-    var badge=document.createElement('span');badge.className='lock-badge';badge.textContent='🔒';badge.setAttribute('aria-hidden','true');
-    trigger.appendChild(label);trigger.appendChild(arrow);trigger.appendChild(badge);wrap.appendChild(trigger);
-    var menu=document.createElement('div');menu.className='touch-filter-menu';menu.setAttribute('role','listbox');wrap.appendChild(menu);
-    var timer=null,held=false,startX=0,startY=0,suppressClick=false;
-    function selectedText(){var o=sel.options[sel.selectedIndex];return o?o.textContent:'اختر';}
-    function close(){menu.classList.remove('open');trigger.setAttribute('aria-expanded','false');}
-    function closeOthers(){document.querySelectorAll('.touch-filter-menu.open').forEach(function(m){if(m!==menu){m.classList.remove('open');m.parentNode.querySelector('.touch-filter-trigger').setAttribute('aria-expanded','false');}});}
-    function refresh(){
-      label.textContent=selectedText();
-      menu.innerHTML='';
-      Array.prototype.forEach.call(sel.options,function(o){
-        var b=document.createElement('button');b.type='button';b.className='touch-filter-option'+(o.value===sel.value?' selected':'');b.setAttribute('role','option');b.setAttribute('aria-selected',o.value===sel.value?'true':'false');b.textContent=o.textContent;
-        b.addEventListener('click',function(ev){
-          ev.preventDefault();ev.stopPropagation();if(filterLocks[id])return;
-          sel.value=o.value;
-          try{sel.dispatchEvent(new Event('change',{bubbles:true}));}catch(e){var evt=document.createEvent('HTMLEvents');evt.initEvent('change',true,false);sel.dispatchEvent(evt);}
-          refresh();close();refreshAll();
-        });
-        menu.appendChild(b);
-      });
-      wrap.classList.toggle('is-locked',!!filterLocks[id]);
-      trigger.setAttribute('aria-disabled',filterLocks[id]?'true':'false');
-    }
-    function toggleLock(){
-      filterLocks[id]=!filterLocks[id];
-      try{localStorage.setItem(FILTER_LOCK_KEY,JSON.stringify(filterLocks));}catch(e){}
-      close();refreshAll();
-    }
-    function refreshAll(){['comboSel','unitSel','lessonSel'].forEach(function(k){var x=$(k);if(x&&x._touchRefresh)x._touchRefresh();});}
-    trigger.addEventListener('pointerdown',function(e){
-      if(e.pointerType==='mouse'&&e.button!==0)return;
-      held=false;suppressClick=false;startX=e.clientX;startY=e.clientY;clearTimeout(timer);
-      timer=setTimeout(function(){held=true;suppressClick=true;toggleLock();},420);
-    });
-    trigger.addEventListener('pointermove',function(e){if(Math.abs(e.clientX-startX)>10||Math.abs(e.clientY-startY)>10)clearTimeout(timer);});
-    function clearHold(){clearTimeout(timer);}
-    trigger.addEventListener('pointerup',clearHold);
-    trigger.addEventListener('pointercancel',clearHold);
-    trigger.addEventListener('contextmenu',function(e){e.preventDefault();});
-    trigger.addEventListener('click',function(e){
-      e.preventDefault();e.stopPropagation();
-      if(suppressClick){suppressClick=false;return;}
-      if(filterLocks[id])return;
-      if(menu.classList.contains('open'))close();else{closeOthers();refresh();menu.classList.add('open');trigger.setAttribute('aria-expanded','true');}
-    });
-    wrap.addEventListener('contextmenu',function(e){e.preventDefault();});
-    sel.style.display='none';
-    sel._touchRefresh=refresh;
-    var observer=new MutationObserver(refresh);observer.observe(sel,{childList:true,subtree:true,characterData:true,attributes:true});
-    refresh();
-  });
+ var ids=['comboSel','unitSel','lessonSel'];
+ ids.forEach(function(id){var sel=$(id);if(!sel||sel.dataset.touchFilterReady)return;sel.dataset.touchFilterReady='1';
+ var host=document.createElement('div');host.className='touch-filter';
+ var trigger=document.createElement('button');trigger.type='button';trigger.className='touch-filter-trigger';trigger.setAttribute('aria-haspopup','listbox');trigger.setAttribute('aria-expanded','false');
+ var menu=document.createElement('div');menu.className='touch-filter-menu';menu.setAttribute('role','listbox');
+ sel.parentNode.insertBefore(host,sel);host.appendChild(sel);host.appendChild(trigger);host.appendChild(menu);
+ function selectedText(){var o=sel.options[sel.selectedIndex];return o?o.textContent.trim():'اختر';}
+ function paint(){host.classList.toggle('is-locked',!!filterLocks[id]);trigger.innerHTML='<span class="trigger-label"></span>'+(filterLocks[id]?'<span class="lock-mark" aria-hidden="true">🔒</span>':'');trigger.querySelector('.trigger-label').textContent=selectedText();trigger.setAttribute('aria-disabled',filterLocks[id]?'true':'false');}
+ function close(){menu.classList.remove('open');trigger.setAttribute('aria-expanded','false');}
+ function draw(){menu.innerHTML='';Array.prototype.forEach.call(sel.options,function(o,i){if(!o.value && sel.options.length>1 && !o.textContent.trim())return;var b=document.createElement('button');b.type='button';b.className='touch-filter-option'+(i===sel.selectedIndex?' selected':'');b.textContent=o.textContent;b.setAttribute('role','option');b.setAttribute('aria-selected',i===sel.selectedIndex?'true':'false');b.onclick=function(ev){ev.preventDefault();sel.selectedIndex=i;sel.dispatchEvent(new Event('change',{bubbles:true}));paint();close();};menu.appendChild(b);});}
+ function refresh(){draw();paint();}
+ var timer=null,held=false,moved=false,suppressClickUntil=0,x0=0,y0=0;
+ function down(e){if(e.pointerType==='mouse'&&e.button!==0)return;held=false;moved=false;x0=e.clientX||0;y0=e.clientY||0;clearTimeout(timer);timer=setTimeout(function(){held=true;suppressClickUntil=Date.now()+700;filterLocks[id]=!filterLocks[id];try{localStorage.setItem(FILTER_LOCK_KEY,JSON.stringify(filterLocks));}catch(err){}paint();if(filterLocks[id])close();},420);}
+ function move(e){if(Math.abs((e.clientX||0)-x0)>10||Math.abs((e.clientY||0)-y0)>10){moved=true;clearTimeout(timer);}}
+ function up(e){clearTimeout(timer);if(held){if(e.cancelable)e.preventDefault();e.stopPropagation();held=false;}}
+ trigger.addEventListener('pointerdown',down,{passive:true});trigger.addEventListener('pointermove',move,{passive:true});trigger.addEventListener('pointerup',up,true);trigger.addEventListener('pointercancel',function(){clearTimeout(timer);},true);trigger.addEventListener('contextmenu',function(e){e.preventDefault();});
+ trigger.addEventListener('click',function(e){e.preventDefault();if(held||Date.now()<suppressClickUntil)return;if(filterLocks[id])return;var was=menu.classList.contains('open');document.querySelectorAll('.touch-filter-menu.open').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.touch-filter-trigger[aria-expanded="true"]').forEach(function(b){b.setAttribute('aria-expanded','false');});if(!was){refresh();menu.classList.add('open');trigger.setAttribute('aria-expanded','true');}});
+ sel.addEventListener('change',function(){refresh();});
+ var observer=new MutationObserver(function(){refresh();});observer.observe(sel,{childList:true,subtree:true,attributes:true});
+ refresh();
+ });
+ document.addEventListener('pointerdown',function(e){if(!e.target.closest('.touch-filter')){document.querySelectorAll('.touch-filter-menu.open').forEach(function(m){m.classList.remove('open');});document.querySelectorAll('.touch-filter-trigger[aria-expanded="true"]').forEach(function(b){b.setAttribute('aria-expanded','false');});}},true);
 }
 setupFilterLocks();
-document.addEventListener('click',function(e){if(!e.target.closest('.touch-filter'))document.querySelectorAll('.touch-filter-menu.open').forEach(function(m){m.classList.remove('open');var b=m.parentNode.querySelector('.touch-filter-trigger');if(b)b.setAttribute('aria-expanded','false');});});
+
 $('classSel').onchange=renderSections;$('sectionSel').onchange=renderCards;$('unitSel').onchange=renderLessons;$('lessonSel').onchange=renderCards;$('settingsBtn').onclick=openSettings;$('comboSel').addEventListener('change',onComboChange);$('cards').addEventListener('contextmenu',function(e){e.preventDefault();});document.querySelector('.filters').addEventListener('change',saveSel);$('nameSearch').addEventListener('input',renderCards);
 function drawGradeMenu(){var m=$('gradeMenu');m.innerHTML='<div class="gf-label">تصفية حسب التقييم</div>'+GRADE_OPTS.map(function(o){return '<button type="button" data-gf="'+o[0]+'" class="'+(gradeFilter===o[0]?'sel':'')+'"><span>'+o[1]+'</span>'+(gradeFilter===o[0]?'<span>\u2713</span>':'<span></span>')+'</button>';}).join('');m.querySelectorAll('[data-gf]').forEach(function(b){b.onclick=function(){gradeFilter=b.getAttribute('data-gf');$('gradeMenu').classList.remove('open');$('gradeFilterBtn').setAttribute('aria-expanded','false');updateGfBtn();renderCards();};});}
 function updateGfBtn(){var b=$('gradeFilterBtn'),lbl=$('gradeFilterLabel'),opt=null;GRADE_OPTS.forEach(function(o){if(o[0]===gradeFilter)opt=o;});b.classList.toggle('on',!!gradeFilter);lbl.textContent=(gradeFilter&&opt)?opt[1]:'تصفية';}
