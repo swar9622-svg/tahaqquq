@@ -137,7 +137,7 @@ button:focus,button:focus-visible{outline:none!important;box-shadow:none!importa
 <script>
 (function(){
 'use strict';
-var APP_VERSION='59';
+var APP_VERSION='60';
 var KEY='tahaqquq_standalone_checks_v1', DB_NAME='tahaqquq_checks_db_v1', DB_STORE='app', DB_KEY='snapshot', SCORES=[['متقن',10,'good'],['فهم جزئي',7,'partial'],['يحتاج لدعم',4,'support'],['لم ينفذ',0,'none']];
 var state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};
 var queue={checks:[],violations:[],violationDeletes:[]};
@@ -234,6 +234,8 @@ function computePortalWeighted(XLSX,wb){
   function actScore(value){var text=cell(value).trim().replace(/[،,]/g,'.');if(text==='')return '';var n=Number(text);return isNaN(n)?'':n;}
   // summaryNumber (من واجهة البوابة)
   function summaryNumber(v){var t=cell(v).trim().replace(/[،,]/g,'.');if(t==='')return NaN;var n=Number(t);return isNaN(n)?parseFloat(t):n;}
+  function gradeNumber(v){var t=digits(cell(v).trim()).replace(/[٫،,]/g,'.').replace(/[٬\s]/g,'');if(!t)return null;var n=Number(t);return isFinite(n)?n:null;}
+  function ceilWeighted(v,max){var n=Number(v);if(!isFinite(n))n=0;n=Math.max(0,Math.min(max,n));return Math.ceil(n-1e-9);}
   function parseAch(value){var raw=trim(value);if(!raw)return {url:'',score:''};try{var o=JSON.parse(raw);return {url:String(o.url||''),score:o.score==null?'':String(o.score)};}catch(e){return {url:raw,score:''};}}
   function isTestTarget(v){var x=trim(v).toLowerCase();return x==='test'||x==='اختبار'||x==='الاختبار'||x==='exam'||x==='true';}
 
@@ -242,14 +244,6 @@ function computePortalWeighted(XLSX,wb){
   var totalsRows=rows('درجات إنجازات الوحدات').slice(1).map(function(r){return r.map(cell);});
   var phrases={};rows('عبارات_التقييم').slice(1).forEach(function(r){var k=cell(r[0]);if(!k)return;phrases[k]={outstanding:cell(r[1]),excellent:cell(r[2]),good:cell(r[3]),weak:cell(r[4]),zero:cell(r[5])};});
 
-  var officialName=sheetByName('_PortalOfficialSummary');
-  if(!officialName)throw Error('ملف Excel لا يحتوي على الملخص الرسمي للبوابة. حدّث البوابة إلى v462 ثم أعد تصدير الجدول؛ هذا الإصدار ينقل أرقام الملخص المحسوبة في البوابة كما هي.');
-  var officialRows=rows(officialName),officialMarker=officialRows.length?trim(officialRows[0]&&officialRows[0][0]):'';
-  if(officialMarker!=='TAHAQQUQ_PORTAL_OFFICIAL_SUMMARY_V1')throw Error('ورقة الملخص الرسمي غير صالحة. أعد تصدير Excel من بوابة الواجبات v462.');
-  var out={classes:{},phrases:phrases,count:0};
-  officialRows.slice(2).forEach(function(r){var cls=trim(r[0]),section=trim(r[1]),name=trim(r[2]);if(!cls||!name)return;var vals=r.slice(3,9).map(function(v){var n=Number(String(v==null?'':v).replace(/[،,]/g,'.'));return isFinite(n)?n:0;});(out.classes[cls]||(out.classes[cls]=[])).push({name:name,section:section,homework:vals[0],activity:vals[1],check:vals[2],achievement:vals[3],test:vals[4],total:vals[5]});out.count++;});
-  if(!out.count)throw Error('ورقة الملخص الرسمي موجودة لكنها لا تحتوي بيانات طلاب.');
-  return out;
   var classes=[];settings.forEach(function(r){var c=cleanNorm(r[0]);if(c&&classes.indexOf(c)<0)classes.push(c);});
   var out={classes:{},phrases:phrases,count:0};
 
@@ -290,14 +284,17 @@ function computePortalWeighted(XLSX,wb){
       var o=[];achHeaders.slice(3).forEach(function(n,j){var chosen={url:'',score:''};for(var k=0;k<cand.length;k++){var c=parseAch(achRows[cand[k]][j+3]);if(c.url||c.score!==''){chosen=c;break;}}var meta=metaOf(trim(n));if(trim(n))o.push({name:trim(n),score:chosen.score,unit:meta.unit,target:meta.target});});return o;}
     function unitTotals(name,section){var units={},raw=studentAch(name,section);raw.forEach(function(x){if(x.target==='test')return;var r=trim(x.score);if(r===''||!isFinite(Number(r)))return;var u=trim(x.unit);units[u===''?'1':String(Number(u))]=true;});var prefix=cls+'|'+trim(name)+'|'+normSec(section)+'|';Object.keys(overrides).forEach(function(k){if(k.indexOf(prefix)!==0)return;var u=k.slice(prefix.length);if(/^\d+$/.test(u))units[String(Number(u))]=true;});return Object.keys(units).sort(function(a,b){return Number(a)-Number(b);}).map(function(u){return {unit:u,score:approvedUnit(name,section,u)};});}
     // الوحدات المقيّمة على مستوى الصف كله
-    var activeUnits=(function(){var units={};Object.keys(testMap).forEach(function(sk){var row=testMap[sk]||{};Object.keys(row).forEach(function(u){if(trim(row[u])!=='')units[String(Number(u))]=true;});});
+    var testActiveUnits={},activeUnits=(function(){var units={},rosterKeys={};
+      g.slice(1).forEach(function(r){var rn=trim(r[1]);if(rn)rosterKeys[rosterKey(rn)+'|'+rosterKey(r[2])]=true;});
       var byName={};metaRows.forEach(function(r){if(cleanNorm(r[0])!==cls)return;var n=trim(r[1]),u=trim(r[2])===''?'1':String(Number(r[2]));if(n)byName[n]={unit:u,target:isTestTarget(r[5])?'test':'achievement'};});
-      achRows.forEach(function(row){for(var c=3;c<achHeaders.length;c++){var meta=byName[trim(achHeaders[c])];if(!meta||!meta.unit||meta.unit==='NaN')continue;var sc=parseAch(row[c]).score;if(trim(sc)!=='')units[meta.unit]=true;}});
+      Object.keys(testMap).forEach(function(sk){var sp=sk.split('|'),studentRosterKey=rosterKey(sp[0])+'|'+rosterKey(sp.slice(1).join('|'));if(!rosterKeys[studentRosterKey])return;var row=testMap[sk]||{};Object.keys(row).forEach(function(u){if(gradeNumber(row[u])!==null)testActiveUnits[String(Number(u))]=true;});});
+      achRows.forEach(function(row){if(!rosterKeys[rosterKey(row[0])+'|'+rosterKey(row[2])])return;for(var c=3;c<achHeaders.length;c++){var meta=byName[trim(achHeaders[c])];if(!meta||!meta.unit||meta.unit==='NaN')continue;var sc=parseAch(row[c]).score;if(trim(sc)!==''){units[meta.unit]=true;if(meta.target==='test'&&gradeNumber(sc)!==null)testActiveUnits[meta.unit]=true;}}});
+      Object.keys(testActiveUnits).forEach(function(u){units[u]=true;});
       totalsRows.forEach(function(r){if(cleanNorm(r[0])!==cls||trim(r[4])==='')return;var u=String(Number(r[3]));if(u!=='NaN')units[u]=true;});
       return Object.keys(units).filter(function(u){return u!=='NaN'&&Number(u)>0;}).sort(function(a,b){return Number(a)-Number(b);});})();
     // getStudentGradeUnitRows
-    function unitRowsFor(name,section){var tests=testMap[trim(name)+'|'+trim(section)]||{},ach=studentAch(name,section),project={};ach.forEach(function(x){if(x.target!=='test')return;var u=String(Number(x.unit||0)),raw=trim(x.score);if(!u||u==='NaN'||raw==='')return;project[u]=(project[u]||0)+(Number(raw.replace(/[،,]/g,'.'))||0);});
-      return activeUnits.map(function(u){var rt=trim(tests[u]==null?'':tests[u]),tn=Number(rt.replace(/[،,]/g,'.'));if(!isFinite(tn))tn=0;var pr=project[u]||0;return {unit:u,test:Math.min(20,Math.max(0,tn+pr))};});}
+    function unitRowsFor(name,section){var tests=testMap[trim(name)+'|'+trim(section)]||{},ach=studentAch(name,section),project={};ach.forEach(function(x){if(x.target!=='test')return;var u=String(Number(x.unit||0)),raw=trim(x.score);if(!u||u==='NaN'||raw==='')return;project[u]=(project[u]||0)+(gradeNumber(raw)||0);});
+      return activeUnits.map(function(u){var rt=trim(tests[u]==null?'':tests[u]),tn=gradeNumber(rt);if(tn===null)tn=0;var pr=project[u]||0;return {unit:u,test:Math.min(20,Math.max(0,tn+pr))};});}
 
     var list=[];
     g.slice(1).forEach(function(r){
@@ -314,8 +311,8 @@ function computePortalWeighted(XLSX,wb){
       var ut=unitTotals(nm,sec),e=0;
       if(ut.length)e=ut.reduce(function(t,x){return t+(Number(x.score)||0);},0);
       else studentAch(nm,sec).forEach(function(x){var n=summaryNumber(x.score);if(!isNaN(n)&&x.target!=='test')e+=n;});
-      var ur=unitRowsFor(nm,sec),tt=0;ur.forEach(function(x){tt+=Number(x.test)||0;});var testScore=ur.length?tt/ur.length:0;
-      var h=total?Math.min(10,hs/total):0,a=total?Math.min(10,as/total):0,c=total?Math.min(10,cs/total):0,ach=Math.min(10,e),test=Math.min(20,summaryNumber(testScore)||0),sum=Math.min(60,Math.ceil(h+a+c+ach+test));
+      var ur=unitRowsFor(nm,sec),tt=0,testCount=0;ur.forEach(function(x){if(testActiveUnits[String(Number(x.unit))]){tt+=Number(x.test)||0;testCount++;}});var testScore=testCount?tt/testCount:0;
+      var h=ceilWeighted(total?Math.min(10,hs/total):0,10),a=ceilWeighted(total?Math.min(10,as/total):0,10),c=ceilWeighted(total?Math.min(10,cs/total):0,10),ach=ceilWeighted(ur.length?Math.min(10,e/ur.length):0,10),test=testCount?ceilWeighted(Math.min(20,summaryNumber(testScore)||0),20):0,sum=Math.min(60,h+a+c+ach+test);
       list.push({name:nm,section:sec,homework:h,activity:a,check:c,achievement:ach,test:test,total:sum});
     });
     out.classes[cls]=list;out.count+=list.length;
