@@ -137,7 +137,7 @@ button:focus,button:focus-visible{outline:none!important;box-shadow:none!importa
 <script>
 (function(){
 'use strict';
-var APP_VERSION='58';
+var APP_VERSION='59';
 var KEY='tahaqquq_standalone_checks_v1', DB_NAME='tahaqquq_checks_db_v1', DB_STORE='app', DB_KEY='snapshot', SCORES=[['متقن',10,'good'],['فهم جزئي',7,'partial'],['يحتاج لدعم',4,'support'],['لم ينفذ',0,'none']];
 var state={version:2,createdAt:new Date().toISOString(),classes:{},violationTypes:['تأخر','عدم إحضار الواجب','عدم تنفيذ النشاط','سلوك غير مناسب','نسيان الأدوات','أخرى']};
 var queue={checks:[],violations:[],violationDeletes:[]};
@@ -242,6 +242,14 @@ function computePortalWeighted(XLSX,wb){
   var totalsRows=rows('درجات إنجازات الوحدات').slice(1).map(function(r){return r.map(cell);});
   var phrases={};rows('عبارات_التقييم').slice(1).forEach(function(r){var k=cell(r[0]);if(!k)return;phrases[k]={outstanding:cell(r[1]),excellent:cell(r[2]),good:cell(r[3]),weak:cell(r[4]),zero:cell(r[5])};});
 
+  var officialName=sheetByName('_PortalOfficialSummary');
+  if(!officialName)throw Error('ملف Excel لا يحتوي على الملخص الرسمي للبوابة. حدّث البوابة إلى v462 ثم أعد تصدير الجدول؛ هذا الإصدار ينقل أرقام الملخص المحسوبة في البوابة كما هي.');
+  var officialRows=rows(officialName),officialMarker=officialRows.length?trim(officialRows[0]&&officialRows[0][0]):'';
+  if(officialMarker!=='TAHAQQUQ_PORTAL_OFFICIAL_SUMMARY_V1')throw Error('ورقة الملخص الرسمي غير صالحة. أعد تصدير Excel من بوابة الواجبات v462.');
+  var out={classes:{},phrases:phrases,count:0};
+  officialRows.slice(2).forEach(function(r){var cls=trim(r[0]),section=trim(r[1]),name=trim(r[2]);if(!cls||!name)return;var vals=r.slice(3,9).map(function(v){var n=Number(String(v==null?'':v).replace(/[،,]/g,'.'));return isFinite(n)?n:0;});(out.classes[cls]||(out.classes[cls]=[])).push({name:name,section:section,homework:vals[0],activity:vals[1],check:vals[2],achievement:vals[3],test:vals[4],total:vals[5]});out.count++;});
+  if(!out.count)throw Error('ورقة الملخص الرسمي موجودة لكنها لا تحتوي بيانات طلاب.');
+  return out;
   var classes=[];settings.forEach(function(r){var c=cleanNorm(r[0]);if(c&&classes.indexOf(c)<0)classes.push(c);});
   var out={classes:{},phrases:phrases,count:0};
 
