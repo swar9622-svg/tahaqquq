@@ -268,6 +268,12 @@ function computePortalWeighted(XLSX,wb){
     // الاختبارات
     var testName=sheetByName('اختبارات '+cls),testMap={};
     if(testName){var ta=rows(testName);if(ta.length>1){var th=ta[0].map(cell);ta.slice(1).forEach(function(r){var nm=trim(r[0]),sec=trim(r[1]);if(!nm)return;var key=nm+'|'+sec,nk=rosterKey(nm)+'|'+rosterKey(sec),entry=testMap[key]||(testMap[key]=testMap[nk]||{});testMap[nk]=entry;for(var i=2;i<th.length;i++){var m=th[i].match(/^اختبار(\d+)$/);if(!m)continue;var v=trim(r[i]);if(v!=='')entry[String(Number(m[1]))]=v;}});}}
+    // مشاريع تحسين الاختبارات مصدر مستقل في ملف البوابة، ويُستخدم فقط عند وجود تعريف للوحدة.
+    var testProjectDefs={},testProjectScores={};
+    var testProjectDefName=sheetByName('تعريفات مشاريع تحسين الاختبارات');
+    if(testProjectDefName){var tpd=rows(testProjectDefName);tpd.slice(1).forEach(function(r){if(cleanNorm(r[0])!==cls)return;var u=String(Number(r[1]));if(!u||u==='NaN')return;var state=trim(r[5]).toLowerCase();testProjectDefs[u]={name:trim(r[2]),max:trim(r[3])||'10',active:!(state==='false'||state==='0'||state==='موقوف')};});}
+    var testProjectSubmissionName=sheetByName('تسليم مشاريع تحسين الاختبارات');
+    if(testProjectSubmissionName){var tps=rows(testProjectSubmissionName);tps.slice(1).forEach(function(r){if(cleanNorm(r[0])!==cls)return;var u=String(Number(r[1])),def=testProjectDefs[u];if(!def)return;var nm=trim(r[2]),sec=trim(r[3]);if(!nm)return;var key=rosterKey(nm)+'|'+rosterKey(sec)+'|'+u;testProjectScores[key]=trim(r[6]);});}
 
     // الإنجازات
     var achName=sheetByName('إنجازات '+cls),achHeaders=[],achRows=[];
@@ -288,13 +294,14 @@ function computePortalWeighted(XLSX,wb){
       g.slice(1).forEach(function(r){var rn=trim(r[1]);if(rn)rosterKeys[rosterKey(rn)+'|'+rosterKey(r[2])]=true;});
       var byName={};metaRows.forEach(function(r){if(cleanNorm(r[0])!==cls)return;var n=trim(r[1]),u=trim(r[2])===''?'1':String(Number(r[2]));if(n)byName[n]={unit:u,target:isTestTarget(r[5])?'test':'achievement'};});
       Object.keys(testMap).forEach(function(sk){var sp=sk.split('|'),studentRosterKey=rosterKey(sp[0])+'|'+rosterKey(sp.slice(1).join('|'));if(!rosterKeys[studentRosterKey])return;var row=testMap[sk]||{};Object.keys(row).forEach(function(u){if(gradeNumber(row[u])!==null)testActiveUnits[String(Number(u))]=true;});});
+      Object.keys(testProjectScores).forEach(function(k){var p=k.split('|'),u=p.pop(),sk=p.join('|');if(!testProjectDefs[u]||!testProjectDefs[u].active||gradeNumber(testProjectScores[k])===null)return;if(rosterKeys[sk])testActiveUnits[u]=true;});
       achRows.forEach(function(row){if(!rosterKeys[rosterKey(row[0])+'|'+rosterKey(row[2])])return;for(var c=3;c<achHeaders.length;c++){var meta=byName[trim(achHeaders[c])];if(!meta||!meta.unit||meta.unit==='NaN')continue;var sc=parseAch(row[c]).score;if(trim(sc)!==''){units[meta.unit]=true;if(meta.target==='test'&&gradeNumber(sc)!==null)testActiveUnits[meta.unit]=true;}}});
       Object.keys(testActiveUnits).forEach(function(u){units[u]=true;});
       totalsRows.forEach(function(r){if(cleanNorm(r[0])!==cls||trim(r[4])==='')return;var u=String(Number(r[3]));if(u!=='NaN')units[u]=true;});
       return Object.keys(units).filter(function(u){return u!=='NaN'&&Number(u)>0;}).sort(function(a,b){return Number(a)-Number(b);});})();
     // getStudentGradeUnitRows
-    function unitRowsFor(name,section){var tests=testMap[trim(name)+'|'+trim(section)]||testMap[rosterKey(name)+'|'+rosterKey(section)]||{},ach=studentAch(name,section),project={};ach.forEach(function(x){if(x.target!=='test')return;var u=String(Number(x.unit||0)),raw=trim(x.score);if(!u||u==='NaN'||raw==='')return;project[u]=(project[u]||0)+(gradeNumber(raw)||0);});
-      return activeUnits.map(function(u){var rt=trim(tests[u]==null?'':tests[u]),tn=gradeNumber(rt);if(tn===null)tn=0;var pr=project[u]||0;return {unit:u,test:Math.min(20,Math.max(0,tn+pr))};});}
+    function unitRowsFor(name,section){var tests=testMap[trim(name)+'|'+trim(section)]||testMap[rosterKey(name)+'|'+rosterKey(section)]||{},ach=studentAch(name,section),project={};ach.forEach(function(x){if(x.target!=='test')return;var u=String(Number(x.unit||0)),raw=trim(x.score);if(!u||u==='NaN'||raw===''||testProjectDefs[u])return;project[u]=(project[u]||0)+(gradeNumber(raw)||0);});
+      return activeUnits.map(function(u){var rt=trim(tests[u]==null?'':tests[u]),tn=gradeNumber(rt);if(tn===null)tn=0;var pr=project[u]||0,sp=testProjectScores[rosterKey(name)+'|'+rosterKey(section)+'|'+String(Number(u))];if(sp==null)sp=testProjectScores[rosterKey(name)+'|'+rosterKey(section)+'|'+String(Number(u))];if(testProjectDefs[String(Number(u))]&&testProjectDefs[String(Number(u))].active)pr+=gradeNumber(sp)||0;return {unit:u,test:Math.min(20,Math.max(0,tn+pr))};});}
 
     var list=[];
     g.slice(1).forEach(function(r){
